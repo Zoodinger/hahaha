@@ -10,7 +10,7 @@ namespace Hahaha
         public void PlayGame()
         {
             //loads scene 1 - main level
-            SceneManager.LoadSceneAsync(1);
+            SceneManager.LoadScene(1);
         }
 
         public void QuitGame()

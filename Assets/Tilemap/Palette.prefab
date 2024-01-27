@@ -176,6 +176,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 5189852922678244641}
     m_Modifications:
+    - target: {fileID: 725640545584654712, guid: c5eb7c9344660374e980c30d074405eb, type: 3}
+      propertyPath: m_DynamicOccludee
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 725640545584654712, guid: c5eb7c9344660374e980c30d074405eb, type: 3}
+      propertyPath: m_LightProbeUsage
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8252670967794735101, guid: c5eb7c9344660374e980c30d074405eb, type: 3}
       propertyPath: m_Name
       value: Outer Wall
@@ -278,6 +286,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7535296111926421983, guid: 73038c1dbfb13a24ea95c057fa44c544, type: 3}
+      propertyPath: m_DynamicOccludee
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7535296111926421983, guid: 73038c1dbfb13a24ea95c057fa44c544, type: 3}
+      propertyPath: m_LightProbeUsage
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8021885211151286466, guid: 73038c1dbfb13a24ea95c057fa44c544, type: 3}
       propertyPath: m_Name
       value: Character
@@ -362,7 +378,7 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8923207022699758491, guid: 9cff795b26004d34992bafd9ae86fe7b, type: 3}
   m_PrefabInstance: {fileID: 7099541367625341345}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &8420170850378643532
+--- !u!114 &8429473246362351233
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
