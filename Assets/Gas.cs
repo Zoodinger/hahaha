@@ -9,6 +9,7 @@ namespace Hahaha {
         [SerializeField, Get] private new SpriteRenderer renderer;
         [SerializeField] private float horizontalSpeed = 2;
         [SerializeField] private float lifeTime = 3.0f;
+        [SerializeField] private float damage = 1;
 
         [SerializeField] private float startAlpha = 0.8f;
         [SerializeField] private float endAlpha = 0.1f;
@@ -20,6 +21,8 @@ namespace Hahaha {
 
         private Timer _timer;
         private float _direction;
+
+        public float Damage => damage;
 
         protected override void OnGet() {
             _timer.Reset();

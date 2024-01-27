@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using Cyens.Pooling;
 using Hahaha.System;
 using Teo.AutoReference;
@@ -14,18 +16,23 @@ namespace Hahaha {
 
         [SerializeField] private float shootRate = 0.1f;
 
+        [SerializeField] private float gravityScale = 3;
+
         [SerializeField] private PrefabPool<Gas> gasPool;
 
         private InputActions _actions;
+
         private Vector2 _inputAxis;
         private Vector2 _inputVelocity;
-        private bool _jumpPressed;
-        private bool _leftTheGround;
+        private float MoveVelocity => _inputVelocity.x * speed;
+
         private bool _isGrounded;
 
-        private bool _isShooting;
+        private bool _isJumpPressed;
+        private bool _isShootingPressed;
 
         private LayerMask _solidLayerMask;
+        private int _solidLayer;
 
         private Vector2 _velocity;
 
@@ -40,26 +47,22 @@ namespace Hahaha {
             _actions.Player.Move.performed += ctx => { _inputAxis = new Vector2(ctx.ReadValue<Vector2>().x, 0); };
             _actions.Player.Move.canceled += _ => { _inputAxis = Vector2.zero; };
 
-            _actions.Player.Jump.performed += _ => { _jumpPressed = true; };
+            _actions.Player.Jump.performed += _ => { _isJumpPressed = true; };
 
-            _actions.Player.Shoot.performed += _ => { _isShooting = true; };
+            _actions.Player.Shoot.performed += _ => { _isShootingPressed = true; };
 
-            _actions.Player.Shoot.canceled += _ => { _isShooting = false; };
+            _actions.Player.Shoot.canceled += _ => { _isShootingPressed = false; };
 
+            _solidLayer = LayerMask.NameToLayer("Solid");
             _solidLayerMask = LayerMask.GetMask("Solid");
         }
 
         private void Update() {
             CheckGrounded();
 
-            var x = ApplyRunVelocity(ref _inputVelocity.x);
+            ApplyRunVelocity(ref _inputVelocity.x);
 
-            var velocity = body.velocity;
-            velocity.x = x;
-
-            body.velocity = velocity;
-
-            if (_isShooting) {
+            if (_isShootingPressed) {
                 var elapsed = _shootTimer.Elapsed;
                 if (elapsed >= shootRate) {
                     _shootTimer.Reset(Mathf.Max(0, elapsed - shootRate));
@@ -71,24 +74,104 @@ namespace Hahaha {
                 _shootTimer.Reset();
             }
 
-            _direction = x switch {
+            _direction = _inputVelocity.x switch {
                 > 0 => 1,
                 < 0 => -1,
                 _ => _direction,
             };
 
+
+            _velocity.y += Physics2D.gravity.y * Time.deltaTime * gravityScale;
+            _velocity.x = MoveVelocity;
+
             if (_isGrounded) {
-                _leftTheGround = false;
-                if (_jumpPressed) {
-                    body.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+                if (_isJumpPressed) {
+                    _velocity.y = jumpForce;
                 }
             }
 
-            _jumpPressed = false;
+            _isJumpPressed = false;
         }
 
         private void OnDestroy() {
             _actions.Dispose();
+        }
+
+        private void FixedUpdate() {
+            body.velocity = Vector2.zero;
+            body.angularVelocity = 0;
+            body.MovePosition(body.position + _velocity * Time.fixedDeltaTime);
+        }
+
+        private readonly List<ContactPoint2D> _contacts = new();
+
+        private enum HitDirection {
+            None,
+            Left,
+            Right,
+            Up,
+            Down,
+        }
+
+        private HitDirection GetDirection(ContactPoint2D point) {
+            var normal = point.normal;
+            switch (normal.x) {
+                case < -0.9f:
+                    return HitDirection.Left;
+                case > 0.9f:
+                    return HitDirection.Right;
+            }
+
+            switch (normal.y) {
+                case < -0.9f:
+                    return HitDirection.Up;
+                case > 0.9f:
+                    return HitDirection.Down;
+            }
+
+            return HitDirection.None;
+        }
+
+        private void OnCollisionEnter2D(Collision2D other) {
+            if (other.gameObject.layer != _solidLayer) {
+                return;
+            }
+
+            _contacts.Clear();
+            other.GetContacts(_contacts);
+
+            foreach (var contact in _contacts) {
+                var hitDirection = GetDirection(contact);
+
+                if (hitDirection == HitDirection.Left && _velocity.x < 0) {
+                    _velocity.x = 0;
+                }
+                if (hitDirection == HitDirection.Right && _velocity.x > 0) {
+                    _velocity.x = 0;
+                }
+
+                if (hitDirection == HitDirection.Up && _velocity.y > 0) {
+                    _velocity.y = 0;
+                }
+                if (hitDirection == HitDirection.Down && _velocity.y < 0) {
+                    _velocity.y = 0;
+                }
+
+                // switch (normal.y) {
+                //     case > 0.5f when _velocity.y < 0:
+                //     case < -0.5f when _velocity.y > 0:
+                //         _velocity.y = 0;
+                //         break;
+                // }
+                //
+                // switch (normal.x) {
+                //     case > 0.5f when _velocity.x < 0:
+                //     case < -0.5f when _velocity.x > 0:
+                //         _velocity.x = 0;
+                //         _inputVelocity.x = 0;
+                //         break;
+                // }
+            }
         }
 
 
@@ -103,7 +186,7 @@ namespace Hahaha {
             _isGrounded = hit;
         }
 
-        private float ApplyRunVelocity(ref float currentVelocity) {
+        private void ApplyRunVelocity(ref float currentVelocity) {
             var input = Mathf.Clamp(_inputAxis.x, -1, 1);
 
             if (currentVelocity < input) {
@@ -111,8 +194,6 @@ namespace Hahaha {
             } else if (currentVelocity > input) {
                 currentVelocity = Mathf.Max(currentVelocity - axisAcceleration * Time.deltaTime, input);
             }
-
-            return currentVelocity * speed;
         }
     }
 }

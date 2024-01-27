@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2637827939890833123}
   - component: {fileID: 581856929014549731}
   - component: {fileID: -5040089029304124550}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Enemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -172,6 +172,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   renderer: {fileID: 7535296111926421983}
-  maxLife: 1
+  maxLife: 4
   damagePerSecond: 0.25
-  color: {r: 1, g: 1, b: 1, a: 1}
+  color: {r: 1, g: 0.63617593, b: 0.16509432, a: 1}
