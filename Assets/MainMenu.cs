@@ -17,5 +17,10 @@ namespace Hahaha
         {
             Application.Quit();
         }
+        
+        public void ShowCredits()
+        {
+            SceneManager.LoadScene(3);
+        }
     }
 }
