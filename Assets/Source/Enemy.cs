@@ -15,9 +15,12 @@ namespace Hahaha {
         [SerializeField] private float damagePerSecond = 0.25f;
         [SerializeField] private Color color = Color.white;
         [SerializeField] private float laughForce = 4;
+        [SerializeField] private float laughRate = 0.25f;
         [SerializeField] private float gravityScale = 3;
 
         [SerializeField] private Vector2 _velocity;
+
+        [SerializeField] private float haOffsetY = 0.25f;
 
         private int _gasLayer;
         private float _life;
@@ -34,13 +37,23 @@ namespace Hahaha {
         }
 
 
-        private Timer _timer;
+        private ScaledTimer _timer;
+
+        private void MakeHa() {
+            LaughterGenerator.MakeHaAt(collider.GetTop() + new Vector2(0, haOffsetY));
+        }
 
         private void Update() {
             if (_isTakingDamage == 0) {
                 _velocity.y += Physics2D.gravity.y * Time.deltaTime * gravityScale;
                 _velocity.y = Mathf.Max(-10, _velocity.y);
                 return;
+            }
+
+            if (_timer.Elapsed >= laughRate) {
+                _timer.ResetFromCurrentInterval(laughRate);
+
+                MakeHa();
             }
 
             var isGrounded = collider.IsGrounded();

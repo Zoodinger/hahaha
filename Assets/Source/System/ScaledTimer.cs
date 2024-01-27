@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 namespace Hahaha.System {
-    public struct Timer {
+    public struct ScaledTimer {
         private double _startTime;
 
         public void Reset() {

@@ -41,7 +41,7 @@ namespace Hahaha {
         private bool _isJumpPressed;
         private bool _isShootingPressed;
 
-        private Timer _shootTimer;
+        private ScaledTimer _shootScaledTimer;
         private int _solidLayer;
 
         private bool _isDamaged = false;
@@ -80,15 +80,15 @@ namespace Hahaha {
             }
 
             if (_isShootingPressed) {
-                var elapsed = _shootTimer.Elapsed;
+                var elapsed = _shootScaledTimer.Elapsed;
                 if (elapsed >= shootRate) {
-                    _shootTimer.Reset(Mathf.Max(0, elapsed - shootRate));
+                    _shootScaledTimer.Reset(Mathf.Max(0, elapsed - shootRate));
                     var gas = gasPool.Get(null, transform.position);
 
                     gas.Shoot(_direction);
                 }
             } else {
-                _shootTimer.Reset();
+                _shootScaledTimer.Reset();
             }
 
             _direction = _inputVelocity.x switch {

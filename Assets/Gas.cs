@@ -19,28 +19,28 @@ namespace Hahaha {
 
         private float _verticalSpeed;
 
-        private Timer _timer;
+        private ScaledTimer _scaledTimer;
         private float _direction;
 
         public float Damage => damage;
 
         protected override void OnGet() {
-            _timer.Reset();
+            _scaledTimer.Reset();
         }
 
         public void Shoot(int direction) {
-            _timer.Reset();
+            _scaledTimer.Reset();
             _direction = Mathf.Sign(direction);
             _verticalSpeed = Random.Range(verticalSpeedRange.x, verticalSpeedRange.y);
         }
 
         private void Update() {
-            if (_timer.Elapsed >= lifeTime) {
+            if (_scaledTimer.Elapsed >= lifeTime) {
                 RePool();
                 return;
             }
 
-            var ratio = _timer.Elapsed / lifeTime;
+            var ratio = _scaledTimer.Elapsed / lifeTime;
 
             var t = transform;
             t.position += new Vector3(_direction * horizontalSpeed, _verticalSpeed, 0)  * Time.deltaTime;
