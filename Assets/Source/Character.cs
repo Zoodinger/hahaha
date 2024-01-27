@@ -130,17 +130,19 @@ namespace Hahaha {
             _actions.Dispose();
         }
 
-        private void OnCollisionEnter2D(Collision2D other) {
-            var layer = other.gameObject.layer;
-            if (layer == _solidLayer) {
-                CollideWithSolid(other);
-            }
-        }
+        // private void OnCollisionEnter2D(Collision2D other) {
+        //     var layer = other.gameObject.layer;
+        //     if (layer == _solidLayer) {
+        //         CollideWithSolid(other);
+        //     }
+        // }
 
         private void OnCollisionStay2D(Collision2D other) {
             var layer = other.gameObject.layer;
             if (layer == _enemyLayer) {
                 CollideWithEnemy(other);
+            } else if (layer == _solidLayer) {
+                CollideWithSolid(other);
             }
         }
 

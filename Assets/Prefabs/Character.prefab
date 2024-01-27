@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7535296111926421983}
   - component: {fileID: 6803847738072657623}
   - component: {fileID: 2637827939890833123}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Character
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -54,7 +54,7 @@ Rigidbody2D:
   m_Material: {fileID: 6200000, guid: a600e2a0cc1531e47b06e614b412c36a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 576
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 128
@@ -129,13 +129,18 @@ MonoBehaviour:
   body: {fileID: -6896703369829534493}
   collider: {fileID: 2637827939890833123}
   axisAcceleration: 6
-  speed: 12
-  jumpForce: 16
-  shootRate: 0.1
-  gravityScale: 3
+  speed: 8
+  jumpForce: 20
+  shootRate: 0.05
+  gravityScale: 4
   gasPool:
     prototype: {fileID: 3145518805688147173, guid: 0327a5406b855ee419d5f8e08209f1c0, type: 3}
     preconstruct: 48
+    debug: 0
+  hitForce: 5
+  minVerticalHit: 1
+  hitDeceleration: 4
+  canTakeDamageAgainTime: 1
 --- !u!61 &2637827939890833123
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -148,7 +153,7 @@ BoxCollider2D:
   m_Material: {fileID: 6200000, guid: a600e2a0cc1531e47b06e614b412c36a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 576
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 128

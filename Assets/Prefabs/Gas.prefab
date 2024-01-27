@@ -99,8 +99,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   renderer: {fileID: 6411738192950372921}
-  horizontalSpeed: 2
-  lifeTime: 2
+  horizontalSpeed: 4
+  lifeTime: 1
+  damage: 1
   startAlpha: 0.8
   endAlpha: 0.1
   verticalSpeedRange: {x: -0.1, y: 0.3}

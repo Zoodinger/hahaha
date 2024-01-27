@@ -80,6 +80,7 @@ namespace Cyens.Pooling {
     public class PrefabPool<T> : PrefabPool where T : Poolable {
         [SerializeField] private T prototype;
         [SerializeField] private int preconstruct;
+        [SerializeField] private bool debug;
 
         public override Type InnerType => typeof(T);
 
@@ -96,7 +97,16 @@ namespace Cyens.Pooling {
             }
 
             using (MakeReadyContext()) {
+                #if UNITY_EDITOR
+                if (debug) {
+                    Object.Destroy(obj);
+                } else {
+                    data.RePool(obj);
+                }
+                #else
                 data.RePool(obj);
+                #endif
+
             }
         }
 

@@ -174,7 +174,7 @@ MonoBehaviour:
   body: {fileID: 581856929014549731}
   renderer: {fileID: 7535296111926421983}
   collider: {fileID: 2637827939890833123}
-  maxLife: 6
+  maxLife: 2
   damagePerSecond: 0.25
   color: {r: 0.8962264, g: 0.716567, b: 0.40161088, a: 1}
   laughForce: 4
@@ -183,7 +183,7 @@ MonoBehaviour:
   haOffsetY: 0.25
   detectionDistance: 10
   detectionVerticalDistance: 2
-  chaseSpeed: 4
-  laughSpeed: 1
+  chaseSpeed: 3
+  laughSpeed: 1.5
   normalSpeed: 2
   roamDurationRange: {x: 3, y: 5}
