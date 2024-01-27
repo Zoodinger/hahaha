@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using System.Linq;
 using Cyens.Pooling;
+using Hahaha.Extensions;
 using Hahaha.System;
 using Teo.AutoReference;
 using UnityEngine;
@@ -19,26 +19,37 @@ namespace Hahaha {
         [SerializeField] private float gravityScale = 3;
 
         [SerializeField] private PrefabPool<Gas> gasPool;
+        [SerializeField] private float hitForce = 5;
+
+        [SerializeField] private float minVerticalHit = 1f;
+
+        private readonly List<ContactPoint2D> _contacts = new();
 
         private InputActions _actions;
 
+        private int _direction;
+        private int _enemyLayer;
+        [SerializeField] private float hitDeceleration = 1f;
+
+        private Vector2 _hitVelocity;
+
         private Vector2 _inputAxis;
         private Vector2 _inputVelocity;
-        private float MoveVelocity => _inputVelocity.x * speed;
 
         private bool _isGrounded;
 
         private bool _isJumpPressed;
         private bool _isShootingPressed;
 
-        private LayerMask _solidLayerMask;
+        private Timer _shootTimer;
         private int _solidLayer;
 
+        private bool _isDamaged = false;
+
+        private LayerMask _solidLayerMask;
+
         private Vector2 _velocity;
-
-        private int _direction;
-
-        private Timer _shootTimer;
+        private float MoveVelocity => _inputVelocity.x * speed;
 
         private void Awake() {
             _actions = new InputActions();
@@ -54,13 +65,19 @@ namespace Hahaha {
             _actions.Player.Shoot.canceled += _ => { _isShootingPressed = false; };
 
             _solidLayer = LayerMask.NameToLayer("Solid");
+            _enemyLayer = LayerMask.NameToLayer("Enemy");
             _solidLayerMask = LayerMask.GetMask("Solid");
         }
 
         private void Update() {
-            CheckGrounded();
+            _isGrounded = collider.IsGrounded();
 
             ApplyRunVelocity(ref _inputVelocity.x);
+
+            _hitVelocity = _hitVelocity.Decelerated(hitDeceleration);
+            if (_hitVelocity == Vector2.zero) {
+                _isDamaged = false;
+            }
 
             if (_isShootingPressed) {
                 var elapsed = _shootTimer.Elapsed;
@@ -93,24 +110,49 @@ namespace Hahaha {
             _isJumpPressed = false;
         }
 
+        private void FixedUpdate() {
+            body.velocity = Vector2.zero;
+            body.angularVelocity = 0;
+            var newPosition = _velocity + _hitVelocity;
+            body.MovePosition(body.position + newPosition * Time.fixedDeltaTime);
+        }
+
         private void OnDestroy() {
             _actions.Dispose();
         }
 
-        private void FixedUpdate() {
-            body.velocity = Vector2.zero;
-            body.angularVelocity = 0;
-            body.MovePosition(body.position + _velocity * Time.fixedDeltaTime);
+        private void OnCollisionEnter2D(Collision2D other) {
+            var layer = other.gameObject.layer;
+            if (layer == _solidLayer) {
+                CollideWithSolid(other);
+            } else if (layer == _enemyLayer) {
+                CollideWithEnemy(other);
+            }
         }
 
-        private readonly List<ContactPoint2D> _contacts = new();
+        private void CollideWithEnemy(Collision2D other) {
+            if (_isDamaged) {
+                return;
+            }
+            var point = other.collider.bounds.center;
+            Hit(point);
+            _isDamaged = true;
 
-        private enum HitDirection {
-            None,
-            Left,
-            Right,
-            Up,
-            Down,
+        }
+
+        public void Hit(Vector2 point) {
+            var direction = (collider.bounds.center.To2D() - point).normalized * hitForce;
+            if (direction.y >= -0.5f && direction.y < minVerticalHit) {
+                direction = direction.WithY(minVerticalHit).normalized;
+            } else {
+                direction = direction.normalized;
+            }
+
+            _hitVelocity += direction * hitForce;
+            _hitVelocity = Vector2.ClampMagnitude(_hitVelocity, hitForce);
+
+            _inputVelocity = Vector2.zero;
+            _velocity.y = 0;
         }
 
         private HitDirection GetDirection(ContactPoint2D point) {
@@ -132,11 +174,7 @@ namespace Hahaha {
             return HitDirection.None;
         }
 
-        private void OnCollisionEnter2D(Collision2D other) {
-            if (other.gameObject.layer != _solidLayer) {
-                return;
-            }
-
+        private void CollideWithSolid(Collision2D other) {
             _contacts.Clear();
             other.GetContacts(_contacts);
 
@@ -156,35 +194,20 @@ namespace Hahaha {
                 if (hitDirection == HitDirection.Down && _velocity.y < 0) {
                     _velocity.y = 0;
                 }
-
-                // switch (normal.y) {
-                //     case > 0.5f when _velocity.y < 0:
-                //     case < -0.5f when _velocity.y > 0:
-                //         _velocity.y = 0;
-                //         break;
-                // }
-                //
-                // switch (normal.x) {
-                //     case > 0.5f when _velocity.x < 0:
-                //     case < -0.5f when _velocity.x > 0:
-                //         _velocity.x = 0;
-                //         _inputVelocity.x = 0;
-                //         break;
-                // }
             }
         }
 
 
-        private void CheckGrounded() {
-            var bounds = collider.bounds;
-            collider.enabled = false;
-            const float offset = 0.1f;
-            var point1 = bounds.min + new Vector3(-offset, -offset);
-            var point2 = new Vector3(bounds.max.x - offset, bounds.min.y + offset);
-            var hit = Physics2D.OverlapArea(point1, point2, _solidLayerMask);
-            collider.enabled = true;
-            _isGrounded = hit;
-        }
+        // private void CheckGrounded() {
+        //     var bounds = collider.bounds;
+        //     collider.enabled = false;
+        //     const float offset = 0.1f;
+        //     var point1 = bounds.min + new Vector3(-offset, -offset);
+        //     var point2 = new Vector3(bounds.max.x - offset, bounds.min.y + offset);
+        //     var hit = Physics2D.OverlapArea(point1, point2, _solidLayerMask);
+        //     collider.enabled = true;
+        //     _isGrounded = hit;
+        // }
 
         private void ApplyRunVelocity(ref float currentVelocity) {
             var input = Mathf.Clamp(_inputAxis.x, -1, 1);
@@ -194,6 +217,14 @@ namespace Hahaha {
             } else if (currentVelocity > input) {
                 currentVelocity = Mathf.Max(currentVelocity - axisAcceleration * Time.deltaTime, input);
             }
+        }
+
+        private enum HitDirection {
+            None,
+            Left,
+            Right,
+            Up,
+            Down,
         }
     }
 }
