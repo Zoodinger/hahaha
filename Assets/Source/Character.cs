@@ -108,6 +108,8 @@ namespace Hahaha {
 
 
             _velocity.y += Physics2D.gravity.y * Time.deltaTime * gravityScale;
+
+            _velocity.y = Mathf.Max(-30, _velocity.y);
             _velocity.x = MoveVelocity;
 
             if (_isGrounded) {
@@ -129,13 +131,6 @@ namespace Hahaha {
         private void OnDestroy() {
             _actions.Dispose();
         }
-
-        // private void OnCollisionEnter2D(Collision2D other) {
-        //     var layer = other.gameObject.layer;
-        //     if (layer == _solidLayer) {
-        //         CollideWithSolid(other);
-        //     }
-        // }
 
         private void OnCollisionStay2D(Collision2D other) {
             var layer = other.gameObject.layer;

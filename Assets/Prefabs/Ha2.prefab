@@ -84,7 +84,7 @@ MonoBehaviour:
   lifetime: 2
   startScale: 0.09923487
   startRotation: {x: -0, y: -0, z: 0.17687932, w: 0.9842326}
-  endScaleRelative: 4
+  endScaleRelative: 5
   speedRange: {x: 0.35, y: 0.45}
 --- !u!212 &8634986250853857015
 SpriteRenderer:

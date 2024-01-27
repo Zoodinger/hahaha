@@ -8,8 +8,8 @@ namespace Hahaha.Extensions {
 
         public static bool IsGrounded(this Collider2D collider, LayerMask mask) {
             var bounds = collider.bounds;
-            var point1 = bounds.min + new Vector3(-Offset, -Offset);
-            var point2 = new Vector3(bounds.max.x - Offset, bounds.min.y + Offset);
+            var point1 = new Vector2(bounds.min.x + Offset, bounds.min.y + Offset);
+            var point2 = new Vector2(bounds.max.x - Offset, bounds.min.y - Offset);
             var hit = Physics2D.OverlapArea(point1, point2, mask);
             return hit;
         }
