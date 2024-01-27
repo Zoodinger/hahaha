@@ -26,6 +26,7 @@ namespace Hahaha {
 
         protected override void OnGet() {
             _scaledTimer.Reset();
+            transform.localScale = Vector3.one * scaleRange.x;
         }
 
         public void Shoot(int direction) {

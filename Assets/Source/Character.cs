@@ -22,6 +22,10 @@ namespace Hahaha {
         [SerializeField] private float hitForce = 5;
 
         [SerializeField] private float minVerticalHit = 1f;
+        [SerializeField] private float hitDeceleration = 1f;
+
+        [SerializeField] private float canTakeDamageAgainTime = 2f;
+        private ScaledTimer _damageTimer;
 
         private readonly List<ContactPoint2D> _contacts = new();
 
@@ -29,12 +33,13 @@ namespace Hahaha {
 
         private int _direction;
         private int _enemyLayer;
-        [SerializeField] private float hitDeceleration = 1f;
 
         private Vector2 _hitVelocity;
 
         private Vector2 _inputAxis;
         private Vector2 _inputVelocity;
+
+        private bool _isDamaged = false;
 
         private bool _isGrounded;
 
@@ -44,12 +49,12 @@ namespace Hahaha {
         private ScaledTimer _shootScaledTimer;
         private int _solidLayer;
 
-        private bool _isDamaged = false;
-
         private LayerMask _solidLayerMask;
 
         private Vector2 _velocity;
         private float MoveVelocity => _inputVelocity.x * speed;
+
+        public Collider2D Collider => collider;
 
         private void Awake() {
             _actions = new InputActions();
@@ -66,16 +71,20 @@ namespace Hahaha {
 
             _solidLayer = LayerMask.NameToLayer("Solid");
             _enemyLayer = LayerMask.NameToLayer("Enemy");
-            _solidLayerMask = LayerMask.GetMask("Solid");
+            _solidLayerMask = LayerMask.GetMask("Solid", "Enemy");
         }
 
         private void Update() {
-            _isGrounded = collider.IsGrounded();
+            _isGrounded = collider.IsGrounded(_solidLayerMask);
 
             ApplyRunVelocity(ref _inputVelocity.x);
 
             _hitVelocity = _hitVelocity.Decelerated(hitDeceleration);
             if (_hitVelocity == Vector2.zero) {
+                // _isDamaged = false;
+            }
+
+            if (_isDamaged && _damageTimer.Elapsed > canTakeDamageAgainTime) {
                 _isDamaged = false;
             }
 
@@ -125,7 +134,12 @@ namespace Hahaha {
             var layer = other.gameObject.layer;
             if (layer == _solidLayer) {
                 CollideWithSolid(other);
-            } else if (layer == _enemyLayer) {
+            }
+        }
+
+        private void OnCollisionStay2D(Collision2D other) {
+            var layer = other.gameObject.layer;
+            if (layer == _enemyLayer) {
                 CollideWithEnemy(other);
             }
         }
@@ -138,6 +152,7 @@ namespace Hahaha {
             Hit(point);
             _isDamaged = true;
 
+            _damageTimer.Reset();
         }
 
         public void Hit(Vector2 point) {
@@ -196,18 +211,6 @@ namespace Hahaha {
                 }
             }
         }
-
-
-        // private void CheckGrounded() {
-        //     var bounds = collider.bounds;
-        //     collider.enabled = false;
-        //     const float offset = 0.1f;
-        //     var point1 = bounds.min + new Vector3(-offset, -offset);
-        //     var point2 = new Vector3(bounds.max.x - offset, bounds.min.y + offset);
-        //     var hit = Physics2D.OverlapArea(point1, point2, _solidLayerMask);
-        //     collider.enabled = true;
-        //     _isGrounded = hit;
-        // }
 
         private void ApplyRunVelocity(ref float currentVelocity) {
             var input = Mathf.Clamp(_inputAxis.x, -1, 1);

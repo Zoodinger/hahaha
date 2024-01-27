@@ -55,7 +55,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: -876546973899608171, guid: b0518ded749fe974b88298ab76ede4d2, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -77,7 +77,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: -6251451809504726511, guid: ce3bf3abec5fead439bcbbe591daae83, type: 3}
-  m_Color: {r: 0.77254903, g: 0.56647503, b: 0.34509805, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -99,7 +99,7 @@ BoxCollider2D:
   m_Material: {fileID: 6200000, guid: a600e2a0cc1531e47b06e614b412c36a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 192
+    m_Bits: 448
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -143,22 +143,22 @@ Rigidbody2D:
   m_BodyType: 0
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
+  m_UseAutoMass: 1
+  m_Mass: 0.80999994
   m_LinearDrag: 0
   m_AngularDrag: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 0
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 192
+    m_Bits: 448
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 0
+  m_CollisionDetection: 1
+  m_Constraints: 4
 --- !u!114 &-5040089029304124550
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -174,10 +174,16 @@ MonoBehaviour:
   body: {fileID: 581856929014549731}
   renderer: {fileID: 7535296111926421983}
   collider: {fileID: 2637827939890833123}
-  maxLife: 4
+  maxLife: 6
   damagePerSecond: 0.25
-  color: {r: 1, g: 0.63617593, b: 0.16509432, a: 1}
-  laughForce: 1
+  color: {r: 0.8962264, g: 0.716567, b: 0.40161088, a: 1}
+  laughForce: 4
   laughRate: 0.5
   gravityScale: 3
-  _velocity: {x: 0, y: 0}
+  haOffsetY: 0.25
+  detectionDistance: 10
+  detectionVerticalDistance: 2
+  chaseSpeed: 4
+  laughSpeed: 1
+  normalSpeed: 2
+  roamDurationRange: {x: 3, y: 5}
