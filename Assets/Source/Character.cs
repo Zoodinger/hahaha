@@ -1,3 +1,5 @@
+using Cyens.Pooling;
+using Hahaha.System;
 using Teo.AutoReference;
 using UnityEngine;
 
@@ -7,8 +9,12 @@ namespace Hahaha {
         [SerializeField, Get] private new Collider2D collider;
 
         [SerializeField] private float axisAcceleration = 0.1f;
-        [SerializeField] private float speed = 4;
-        [SerializeField] private float jumpForce = 10;
+        [SerializeField] private float speed = 8;
+        [SerializeField] private float jumpForce = 8;
+
+        [SerializeField] private float shootRate = 0.1f;
+
+        [SerializeField] private PrefabPool<Gas> gasPool;
 
         private InputActions _actions;
         private Vector2 _inputAxis;
@@ -17,7 +23,15 @@ namespace Hahaha {
         private bool _leftTheGround;
         private bool _isGrounded;
 
+        private bool _isShooting;
+
+        private LayerMask _solidLayerMask;
+
         private Vector2 _velocity;
+
+        private int _direction;
+
+        private Timer _shootTimer;
 
         private void Awake() {
             _actions = new InputActions();
@@ -27,50 +41,64 @@ namespace Hahaha {
             _actions.Player.Move.canceled += _ => { _inputAxis = Vector2.zero; };
 
             _actions.Player.Jump.performed += _ => { _jumpPressed = true; };
+
+            _actions.Player.Shoot.performed += _ => { _isShooting = true; };
+
+            _actions.Player.Shoot.canceled += _ => { _isShooting = false; };
+
+            _solidLayerMask = LayerMask.GetMask("Solid");
         }
 
         private void Update() {
             CheckGrounded();
 
-            _velocity.x = ApplyRunVelocity(ref _inputVelocity.x);
+            var x = ApplyRunVelocity(ref _inputVelocity.x);
+
+            var velocity = body.velocity;
+            velocity.x = x;
+
+            body.velocity = velocity;
+
+            if (_isShooting) {
+                var elapsed = _shootTimer.Elapsed;
+                if (elapsed >= shootRate) {
+                    _shootTimer.Reset(Mathf.Max(0, elapsed - shootRate));
+                    var gas = gasPool.Get(null, transform.position);
+
+                    gas.Shoot(_direction);
+                }
+            } else {
+                _shootTimer.Reset();
+            }
+
+            _direction = x switch {
+                > 0 => 1,
+                < 0 => -1,
+                _ => _direction,
+            };
 
             if (_isGrounded) {
                 _leftTheGround = false;
                 if (_jumpPressed) {
-                    _velocity.y = jumpForce;
-                    _leftTheGround = true;
-                } else if (_velocity.y <= 0.001f) {
-                    _velocity.y = Mathf.Max(-1, _velocity.y);
+                    body.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
                 }
             }
 
             _jumpPressed = false;
-
-            if (!_isGrounded) {
-                if (!_leftTheGround && _velocity.y < 0) {
-                    _leftTheGround = true;
-                    _velocity.y = 0;
-                }
-
-                _velocity.y += Physics2D.gravity.y * Time.deltaTime;
-            }
-
-
-        }
-
-        private void FixedUpdate() {
-            body.MovePosition(body.position + _velocity * Time.fixedDeltaTime);
         }
 
         private void OnDestroy() {
             _actions.Dispose();
         }
 
+
         private void CheckGrounded() {
             var bounds = collider.bounds;
             collider.enabled = false;
             const float offset = 0.1f;
-            var hit = Physics2D.BoxCast(bounds.center, bounds.size, 0, Vector2.down, offset);
+            var point1 = bounds.min + new Vector3(-offset, -offset);
+            var point2 = new Vector3(bounds.max.x - offset, bounds.min.y + offset);
+            var hit = Physics2D.OverlapArea(point1, point2, _solidLayerMask);
             collider.enabled = true;
             _isGrounded = hit;
         }

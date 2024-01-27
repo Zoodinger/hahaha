@@ -1,5 +1,5 @@
 {
-    "name": "CatInputActions",
+    "name": "InputActions",
     "maps": [
         {
             "name": "Player",
@@ -24,18 +24,18 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Sprint",
+                    "name": "Jump",
                     "type": "Button",
-                    "id": "05ebdaf3-7839-4e78-bfd3-5786204d4c28",
+                    "id": "8eb10b69-545d-4999-8d0e-f34d44a60031",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Jump",
+                    "name": "Shoot",
                     "type": "Button",
-                    "id": "8eb10b69-545d-4999-8d0e-f34d44a60031",
+                    "id": "40d32d22-ee92-4842-838f-51cf6baace11",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -57,7 +57,7 @@
                 {
                     "name": "WASD",
                     "id": "00ca640b-d935-4593-8157-c05846ea39b3",
-                    "path": "Dpad",
+                    "path": "Dpad(mode=1)",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -243,67 +243,34 @@
                 },
                 {
                     "name": "",
-                    "id": "eeb0b0e5-11b0-4573-b5c4-e9f6585e4d69",
+                    "id": "f619b7c9-be9b-4ba2-91b1-f4cef902c6a8",
                     "path": "<Gamepad>/rightTrigger",
                     "interactions": "",
                     "processors": "",
                     "groups": "Gamepad",
-                    "action": "Sprint",
+                    "action": "Shoot",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "45daaac6-6c4b-46c4-a07d-267da269c96a",
+                    "id": "44b66403-ddeb-4ce1-bd9f-7e91cad63785",
                     "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
-                    "action": "Sprint",
+                    "action": "Shoot",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "661ad723-1b38-44fa-81f0-9d95f65cc1f2",
-                    "path": "<Touchscreen>/primaryTouch/tap",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Touch",
-                    "action": "Sprint",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "696fbe68-2dd3-4f0e-bdf0-f97aaab949e7",
-                    "path": "<Joystick>/trigger",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Joystick",
-                    "action": "Sprint",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "d1b3ad9d-5ad1-42cb-95c4-c9edc4f7daf9",
-                    "path": "<XRController>/{PrimaryAction}",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "XR",
-                    "action": "Sprint",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "a008dc46-a168-4919-ba66-1cfba7a2897f",
-                    "path": "<Keyboard>/shift",
+                    "id": "80f57fc9-1b38-426d-982c-a371b34f8906",
+                    "path": "<Keyboard>/ctrl",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
-                    "action": "Sprint",
+                    "action": "Shoot",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
