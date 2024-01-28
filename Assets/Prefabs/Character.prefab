@@ -316,6 +316,7 @@ MonoBehaviour:
   minVerticalHit: 1
   hitDeceleration: 4
   canTakeDamageAgainTime: 1
+  maxLife: 5
 --- !u!61 &2637827939890833123
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -328,7 +329,7 @@ BoxCollider2D:
   m_Material: {fileID: 6200000, guid: a600e2a0cc1531e47b06e614b412c36a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 576
+    m_Bits: 2624
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 128
@@ -351,7 +352,7 @@ BoxCollider2D:
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.4019608, y: 0.3166303}
+    pivot: {x: 0.4782135, y: 0.2076978}
     oldSize: {x: 4, y: 4}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5

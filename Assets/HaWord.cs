@@ -19,7 +19,8 @@ namespace Hahaha {
         [SerializeField] private float startScale;
         [SerializeField] private Quaternion startRotation;
 
-        [SerializeField] private float endScaleRelative = 3;
+        [SerializeField] private float startScaleRelative = 1.5f;
+        [SerializeField] private float endScaleRelative = 5f;
         [SerializeField] private Vector2 speedRange = new(2, 4);
         private float _speed;
 
@@ -34,7 +35,7 @@ namespace Hahaha {
                 RePool();
             }
 
-            var scale = Mathf.Lerp(startScale, startScale * endScaleRelative, ratio);
+            var scale = Mathf.Lerp(startScale * startScaleRelative, startScale * endScaleRelative, ratio);
             transform.localScale = new Vector3(scale, scale, scale);
 
             renderer.color = renderer.color.WithAlpha(1 - ratio);

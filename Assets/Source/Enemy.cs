@@ -9,6 +9,8 @@ namespace Hahaha {
     public class Enemy : Poolable {
         private static readonly int Saturation = Shader.PropertyToID("_Saturation");
         private static readonly int Color1 = Shader.PropertyToID("_Color");
+        [SerializeField] private Sprite left;
+        [SerializeField] private Sprite right;
         [SerializeField, Get] private Rigidbody2D body;
         [SerializeField, Get] private new SpriteRenderer renderer;
         [SerializeField, Get] private new Collider2D collider;
@@ -76,13 +78,21 @@ namespace Hahaha {
         }
 
         private void Update() {
+            if (_velocity.x > 0) {
+                renderer.sprite = right;
+            } else if (_velocity.x < 0) {
+                renderer.sprite = left;
+            }
+
             if (IsCured) {
                 // RoamAround();
 
-                if (!_isLanded) {
+                // if (collider.IsGrounded) {
                     _velocity.y += Physics2D.gravity.y * Time.deltaTime * gravityScale;
                     _velocity.y = Mathf.Max(-30, _velocity.y);
-                }
+                // }
+
+                _velocity.x = 0;
 
                 return;
             }
@@ -120,21 +130,25 @@ namespace Hahaha {
             body.angularVelocity = 0f;
             body.MovePosition(body.position + _velocity * Time.fixedDeltaTime);
 
-
-            var count = collider.OverlapCollider(filter, results);
-            if (count > 0) {
-                for (var i = 0; i < count; ++ i) {
-                    var other = results[i];
-
-                    var spirit = other.GetComponentInParent<Spirit>();
-                    // Debug.Log(spirit);
-                    if (spirit.Target == this && spirit.IsChasing) {
-                        // Debug.Log("Repossess");
-                        RePossess();
-                        spirit.RePool();
-                    }
-                }
-            }
+            // if (IsCured) {
+            //     collider.enabled = true;
+            //     var count = collider.OverlapCollider(filter, results);
+            //     if (count > 0) {
+            //         for (var i = 0; i < count; ++i) {
+            //             var other = results[i];
+            //
+            //             var spirit = other.GetComponentInParent<Spirit>();
+            //             // Debug.Log(spirit);
+            //             if (spirit.Target == this && spirit.IsChasing) {
+            //                 // Debug.Log("Repossess");
+            //                 RePossess();
+            //                 spirit.RePool();
+            //             }
+            //         }
+            //     }
+            //
+            //     collider.enabled = false;
+            // }
         }
 
 
@@ -169,14 +183,12 @@ namespace Hahaha {
             }
 
             if (other.gameObject.layer == LayerMask.NameToLayer("Spirit")) {
-                // var spirit = other.GetComponentInParent<Spirit>();
-                //
-                // Debug.Log(spirit);
-                // if (spirit.Target == this && spirit.IsChasing) {
-                //     Debug.Log("Repossess");
-                //     RePossess();
-                //     spirit.RePool();
-                // }
+                var spirit = other.GetComponentInParent<Spirit>();
+
+                if (spirit.Target == this && spirit.IsChasing) {
+                    RePossess();
+                    spirit.RePool();
+                }
             }
         }
 
@@ -264,9 +276,11 @@ namespace Hahaha {
         private void OnCollisionStay2D(Collision2D other) {
             if (other.gameObject.layer == Utils.SolidLayer && IsCured) {
                 _isLanded = true;
-                body.simulated = false;
-                collider.enabled = false;
+                // body.simulated = false;
+                // collider.enabled = false;
                 renderer.sortingOrder = -10;
+
+                _velocity.y = 0;
             }
         }
 

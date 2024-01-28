@@ -53,7 +53,7 @@ MonoBehaviour:
   goBackToHostTime: 5
   spawnTime: 2
   initialSpeed: 3
-  moveSpeed: 4
+  moveSpeed: 10
 --- !u!1 &5928022800297395954
 GameObject:
   m_ObjectHideFlags: 0

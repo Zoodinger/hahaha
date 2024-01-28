@@ -4,6 +4,7 @@ using Hahaha.Extensions;
 using Hahaha.System;
 using Teo.AutoReference;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Hahaha {
     public class Character : MonoBehaviour {
@@ -35,6 +36,9 @@ namespace Hahaha {
         [SerializeField] private float canTakeDamageAgainTime = 2f;
         private ScaledTimer _damageTimer;
 
+        [SerializeField] private int maxLife = 10;
+        private int _life;
+
         private readonly List<ContactPoint2D> _contacts = new();
 
         private InputActions _actions;
@@ -61,6 +65,8 @@ namespace Hahaha {
 
         private Vector2 _velocity;
         private static readonly int Speed = Animator.StringToHash("Speed");
+        private Material _material;
+        private static readonly int Saturation = Shader.PropertyToID("_Saturation");
         private float MoveVelocity => _inputVelocity.x * speed;
 
         public Collider2D Collider => collider;
@@ -77,6 +83,7 @@ namespace Hahaha {
             _actions.Enable();
 
             _direction = 1;
+            _life = maxLife;
 
             _actions.Player.Move.performed += ctx => { _inputAxis = new Vector2(ctx.ReadValue<Vector2>().x, 0); };
             _actions.Player.Move.canceled += _ => { _inputAxis = Vector2.zero; };
@@ -90,6 +97,9 @@ namespace Hahaha {
             _solidLayer = LayerMask.NameToLayer("Solid");
             _enemyLayer = LayerMask.NameToLayer("Enemy");
             _solidLayerMask = LayerMask.GetMask("Solid", "Enemy");
+
+            _material = renderer.material;
+            _material.SetFloat(Saturation, 1);
         }
 
         private void Update() {
@@ -177,6 +187,21 @@ namespace Hahaha {
             _isDamaged = true;
 
             _damageTimer.Reset();
+
+            --_life;
+            var ratio = (float)_life / maxLife;
+            _material.SetFloat(Saturation, ratio);
+
+            if (_life <= 0) {
+                SceneManager.LoadScene(0);
+            }
+        }
+
+        private void OnTriggerEnter2D(Collider2D other) {
+            if (other.gameObject.layer == LayerMask.NameToLayer("Spirit")) {
+                var spirit = other.GetComponentInParent<Spirit>();
+                spirit.RePool();
+            }
         }
 
         public void Hit(Vector2 point) {
