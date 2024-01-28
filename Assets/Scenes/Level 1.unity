@@ -28631,6 +28631,10 @@ MonoBehaviour:
     prototype: {fileID: 6566307908771856154, guid: 07ddcd7f4ea58e8418bddbc8a5c3fbdc, type: 3}
     preconstruct: 10
     debug: 0
+  spirit:
+    prototype: {fileID: 1391060167629958654, guid: b036bfe58466e3e4e817c440c2f92f75, type: 3}
+    preconstruct: 16
+    debug: 0
 --- !u!4 &867547806
 Transform:
   m_ObjectHideFlags: 0
@@ -48558,7 +48562,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1259920581
 RectTransform:
   m_ObjectHideFlags: 0
@@ -66820,7 +66824,7 @@ Transform:
   m_GameObject: {fileID: 1778266907}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.1323748, y: 2.0000896, z: -20}
+  m_LocalPosition: {x: -7.111829, y: 2.0000896, z: -20}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
