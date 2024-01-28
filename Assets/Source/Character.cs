@@ -8,6 +8,8 @@ using UnityEngine;
 namespace Hahaha {
     public class Character : MonoBehaviour {
         [SerializeField, Get] private Rigidbody2D body;
+        [SerializeField, Get] private Animator animator;
+        [SerializeField, Get] private new SpriteRenderer renderer;
         [SerializeField, Get] private new Collider2D collider;
 
         [SerializeField] private float axisAcceleration = 0.1f;
@@ -52,6 +54,7 @@ namespace Hahaha {
         private LayerMask _solidLayerMask;
 
         private Vector2 _velocity;
+        private static readonly int Speed = Animator.StringToHash("Speed");
         private float MoveVelocity => _inputVelocity.x * speed;
 
         public Collider2D Collider => collider;
@@ -112,11 +115,19 @@ namespace Hahaha {
             _velocity.y = Mathf.Max(-30, _velocity.y);
             _velocity.x = MoveVelocity;
 
+            if (_velocity.x < 0) {
+                renderer.flipX = true;
+            } else if (_velocity.x > 0) {
+                renderer.flipX = false;
+            }
+
             if (_isGrounded) {
                 if (_isJumpPressed) {
                     _velocity.y = jumpForce;
                 }
             }
+
+            animator.SetFloat(Speed, Mathf.Abs(_velocity.x));
 
             _isJumpPressed = false;
         }
