@@ -277,6 +277,7 @@ namespace Hahaha {
             }
         }
 
+        
         private void MakeHaHa() {
             LaughterGenerator.MakeHaAt(collider.GetTop() + new Vector2(0, haOffsetY));
             haAudio.Play();
