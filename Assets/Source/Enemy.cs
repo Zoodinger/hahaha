@@ -1,5 +1,4 @@
-﻿using System;
-using Hahaha.Extensions;
+﻿using Hahaha.Extensions;
 using Hahaha.Pooling;
 using Hahaha.System;
 using Teo.AutoReference;
@@ -29,30 +28,32 @@ namespace Hahaha {
         [SerializeField] private float normalSpeed = 2;
 
         [SerializeField] private Vector2 roamDurationRange = new Vector2(2, 4);
-        private float _nextRoamTime;
 
+        private Direction _direction;
         private int _gasLayer;
 
-        private int _isTakingDamage = 0;
-        private float _life;
-        private Material _material;
+        private bool _isLanded = false;
 
-        private Character _player;
+        private int _isTakingDamage = 0;
 
 
         private ScaledTimer _laughBounceTimer;
+        private float _life;
+        private Material _material;
+        private float _nextRoamTime;
+
+        private Character _player;
 
         private ScaledTimer _roamTimer;
-
-        private Vector2 _velocity;
         private int _solidMask;
 
-        private enum Direction {
-            Left,
-            Right,
-        }
+        private Vector2 _velocity;
+        private int _enemyLayer;
 
-        private Direction _direction;
+
+        public float Life => _life;
+
+        public bool IsCured => _life <= 0;
 
         private void Awake() {
             _gasLayer = LayerMask.NameToLayer("Gas");
@@ -65,7 +66,83 @@ namespace Hahaha {
             }
 
             _solidMask = LayerMask.GetMask("Solid", "Player");
+            _enemyLayer = LayerMask.NameToLayer("Enemy");
             OnGet();
+        }
+
+        private void Update() {
+            if (IsCured) {
+                // RoamAround();
+
+                if (!_isLanded) {
+                    _velocity.y += Physics2D.gravity.y * Time.deltaTime * gravityScale;
+                    _velocity.y = Mathf.Max(-30, _velocity.y);
+                }
+
+                return;
+            }
+
+            if (!IsCured && CanSeePlayer(out var seeVector)) {
+                ChasePlayer(seeVector);
+            } else {
+                RoamAround();
+            }
+
+            if (_isTakingDamage == 0) {
+                ApplyGravity();
+                return;
+            }
+
+            if (_laughBounceTimer.Elapsed >= laughRate) {
+                _laughBounceTimer.ResetFromCurrentInterval(laughRate);
+
+                MakeHaHa();
+            }
+
+            if (collider.IsGrounded(_solidMask)) {
+                _velocity.y = laughForce;
+            } else {
+                ApplyGravity();
+            }
+        }
+
+        private void FixedUpdate() {
+            body.velocity = Vector2.zero;
+            body.angularVelocity = 0f;
+            body.MovePosition(body.position + _velocity * Time.fixedDeltaTime);
+        }
+
+        //
+        private void OnTriggerEnter2D(Collider2D other) {
+            if (other.gameObject.layer == _gasLayer) {
+                _isTakingDamage += 1;
+            }
+        }
+
+        private void OnTriggerExit2D(Collider2D other) {
+            if (other.gameObject.layer == _gasLayer) {
+                _isTakingDamage -= 1;
+            }
+        }
+
+        private void OnTriggerStay2D(Collider2D other) {
+            if (other.gameObject.layer != _gasLayer) {
+                return;
+            }
+
+            if (IsCured) {
+                return;
+            }
+
+            var gas = other.gameObject.GetComponent<Gas>();
+
+            _life = Mathf.Max(-1, _life - damagePerSecond * gas.Damage * Time.deltaTime);
+
+            if (_life <= 0) {
+                gameObject.layer = LayerMask.NameToLayer("CuredEnemy");
+            }
+
+            _material.SetFloat(Saturation, 1 - _life / maxLife);
         }
 
         private void ChasePlayer(in Vector2 seeVector) {
@@ -120,63 +197,24 @@ namespace Hahaha {
             }
         }
 
-        private void Update() {
-            if (CanSeePlayer(out var seeVector)) {
-                ChasePlayer(seeVector);
-            } else {
-                RoamAround();
-            }
+        private void ApplyGravity() {
+            _velocity.y += Physics2D.gravity.y * Time.deltaTime * gravityScale;
+            _velocity.y = Mathf.Max(-10, _velocity.y);
+        }
 
-            if (_isTakingDamage == 0) {
-                _velocity.y += Physics2D.gravity.y * Time.deltaTime * gravityScale;
-                _velocity.y = Mathf.Max(-10, _velocity.y);
-                return;
-            }
-
-            if (_laughBounceTimer.Elapsed >= laughRate) {
-                _laughBounceTimer.ResetFromCurrentInterval(laughRate);
-
-                MakeHaHa();
-            }
-
-            var isGrounded = collider.IsGrounded(_solidMask);
-
-            if (isGrounded) {
-                _velocity.y = laughForce;
-            } else {
-                _velocity.y += Physics2D.gravity.y * Time.deltaTime * gravityScale;
-                _velocity.y = Mathf.Max(-10, _velocity.y);
+        private void OnCollisionEnter2D(Collision2D other) {
+            if (other.gameObject.layer == _enemyLayer) {
+                SwitchDirection();
             }
         }
 
-        private void FixedUpdate() {
-            body.velocity = Vector2.zero;
-            body.angularVelocity = 0f;
-            body.MovePosition(body.position + _velocity * Time.fixedDeltaTime);
-        }
-
-        //
-        private void OnTriggerEnter2D(Collider2D other) {
-            if (other.gameObject.layer == _gasLayer) {
-                _isTakingDamage += 1;
+        private void OnCollisionStay2D(Collision2D other) {
+            if (other.gameObject.layer == Utils.SolidLayer && IsCured) {
+                _isLanded = true;
+                body.simulated = false;
+                collider.enabled = false;
+                renderer.sortingOrder = -10;
             }
-        }
-
-        private void OnTriggerExit2D(Collider2D other) {
-            if (other.gameObject.layer == _gasLayer) {
-                _isTakingDamage -= 1;
-            }
-        }
-
-        private void OnTriggerStay2D(Collider2D other) {
-            if (other.gameObject.layer != _gasLayer) {
-                return;
-            }
-
-            var gas = other.gameObject.GetComponent<Gas>();
-
-            _life -= damagePerSecond * gas.Damage * Time.deltaTime;
-            _material.SetFloat(Saturation, 1 - _life / maxLife);
         }
 
         private void MakeHaHa() {
@@ -208,6 +246,11 @@ namespace Hahaha {
             _material.SetColor(Color1, color);
             _direction = (Direction)Random.Range(0, 2);
             _nextRoamTime = roamDurationRange.GetRandomValue();
+        }
+
+        private enum Direction {
+            Left,
+            Right,
         }
     }
 }

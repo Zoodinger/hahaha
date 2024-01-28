@@ -103,7 +103,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 10
   m_Sprite: {fileID: 21300000, guid: 9e9df937e861cb5419130fbb789c3ad5, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -128,7 +128,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   body: {fileID: -6896703369829534493}
-  collider: {fileID: 2637827939890833123}
+  animator: {fileID: -4427348196291004773}
+  renderer: {fileID: 7535296111926421983}
+  collider: {fileID: 0}
   axisAcceleration: 6
   speed: 8
   jumpForce: 20
