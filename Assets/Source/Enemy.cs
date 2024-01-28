@@ -19,6 +19,7 @@ namespace Hahaha {
         [SerializeField] private Color color = Color.white;
         [SerializeField] private float laughForce = 4;
         [SerializeField] private float laughRate = 0.25f;
+        [SerializeField] private float laughSoundRate = 0.1f;
         [SerializeField] private float gravityScale = 3;
 
         [SerializeField] private float haOffsetY = 0.25f;
@@ -28,6 +29,8 @@ namespace Hahaha {
         [SerializeField] private float chaseSpeed = 4;
         [SerializeField] private float laughSpeed = 1;
         [SerializeField] private float normalSpeed = 2;
+
+        [SerializeField] private AudioClip[] laughter;
 
         [SerializeField] private Vector2 roamDurationRange = new Vector2(2, 4);
 
@@ -40,6 +43,7 @@ namespace Hahaha {
 
 
         private ScaledTimer _laughBounceTimer;
+        private ScaledTimer _laughSoundTimer;
         private float _life;
         private Material _material;
         private float _nextRoamTime;
@@ -60,11 +64,6 @@ namespace Hahaha {
         public bool IsCured => _life <= 0;
         public Collider2D Collider => collider;
 
-        public void playHaSound()
-        {
-            haAudio.Play();
-        }
-        
         private void Awake() {
             _gasLayer = LayerMask.NameToLayer("Gas");
             _material = renderer.material;
@@ -75,7 +74,7 @@ namespace Hahaha {
                 _player = FindObjectOfType<Character>();
             }
 
-            _solidMask = LayerMask.GetMask("Solid", "Player");
+            _solidMask = LayerMask.GetMask("Solid", "Player", "CuredEnemy");
             _enemyLayer = LayerMask.NameToLayer("Enemy");
 
             filter.NoFilter();
@@ -119,6 +118,15 @@ namespace Hahaha {
                 _laughBounceTimer.ResetFromCurrentInterval(laughRate);
 
                 MakeHaHa();
+            }
+
+            if (_laughSoundTimer.Elapsed >= laughSoundRate) {
+                _laughSoundTimer.ResetFromCurrentInterval(laughSoundRate);
+
+                var clip = laughter[Random.Range(0, laughter.Length)];
+                // haAudio.clip = clip;
+                haAudio.pitch = 1.5f + (1 -(_life / maxLife)) * 1f;
+                haAudio.PlayOneShot(clip);
             }
 
             if (collider.IsGrounded(_solidMask)) {
@@ -294,7 +302,6 @@ namespace Hahaha {
         
         private void MakeHaHa() {
             LaughterGenerator.MakeHaAt(collider.GetTop() + new Vector2(0, haOffsetY));
-            haAudio.Play();
         }
 
         private bool CanSeePlayer(out Vector2 vector) {

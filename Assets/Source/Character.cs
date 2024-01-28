@@ -67,6 +67,7 @@ namespace Hahaha {
         private static readonly int Speed = Animator.StringToHash("Speed");
         private Material _material;
         private static readonly int Saturation = Shader.PropertyToID("_Saturation");
+        private static readonly int Velocity = Animator.StringToHash("Velocity");
         private float MoveVelocity => _inputVelocity.x * speed;
 
         public Collider2D Collider => collider;
@@ -96,7 +97,7 @@ namespace Hahaha {
 
             _solidLayer = LayerMask.NameToLayer("Solid");
             _enemyLayer = LayerMask.NameToLayer("Enemy");
-            _solidLayerMask = LayerMask.GetMask("Solid", "Enemy");
+            _solidLayerMask = LayerMask.GetMask("Solid", "Enemy", "CuredEnemy");
 
             _material = renderer.material;
             _material.SetFloat(Saturation, 1);
@@ -140,6 +141,8 @@ namespace Hahaha {
             _velocity.y = Mathf.Max(-30, _velocity.y);
             _velocity.x = MoveVelocity;
 
+            animator.SetFloat(Velocity, _velocity.y);
+
             if (_velocity.x < 0) {
                 renderer.flipX = true;
             } else if (_velocity.x > 0) {
@@ -148,7 +151,12 @@ namespace Hahaha {
 
             if (_isGrounded) {
                 if (_isJumpPressed) {
+                    animator.Play("Jump");
                     _velocity.y = jumpForce;
+                }
+
+                if (_velocity.y <= 0) {
+                    animator.Play("Walk");
                 }
             }
 
