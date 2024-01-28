@@ -55,9 +55,16 @@ namespace Hahaha {
 
         public float Life => _life;
 
+        public AudioSource haAudio;
+
         public bool IsCured => _life <= 0;
         public Collider2D Collider => collider;
 
+        public void playHaSound()
+        {
+            haAudio.Play();
+        }
+        
         private void Awake() {
             _gasLayer = LayerMask.NameToLayer("Gas");
             _material = renderer.material;
@@ -284,8 +291,10 @@ namespace Hahaha {
             }
         }
 
+        
         private void MakeHaHa() {
             LaughterGenerator.MakeHaAt(collider.GetTop() + new Vector2(0, haOffsetY));
+            haAudio.Play();
         }
 
         private bool CanSeePlayer(out Vector2 vector) {
