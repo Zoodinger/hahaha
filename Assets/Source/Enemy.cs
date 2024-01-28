@@ -54,6 +54,7 @@ namespace Hahaha {
         public float Life => _life;
 
         public bool IsCured => _life <= 0;
+        public Collider2D Collider => collider;
 
         private void Awake() {
             _gasLayer = LayerMask.NameToLayer("Gas");
@@ -67,6 +68,10 @@ namespace Hahaha {
 
             _solidMask = LayerMask.GetMask("Solid", "Player");
             _enemyLayer = LayerMask.NameToLayer("Enemy");
+
+            filter.NoFilter();
+            filter.useLayerMask = true;
+            filter.layerMask = 1 << LayerMask.NameToLayer("Spirit");
             OnGet();
         }
 
@@ -106,11 +111,32 @@ namespace Hahaha {
             }
         }
 
+        public ContactFilter2D filter;
+
+        Collider2D[] results = new Collider2D[24];
+
         private void FixedUpdate() {
             body.velocity = Vector2.zero;
             body.angularVelocity = 0f;
             body.MovePosition(body.position + _velocity * Time.fixedDeltaTime);
+
+
+            var count = collider.OverlapCollider(filter, results);
+            if (count > 0) {
+                for (var i = 0; i < count; ++ i) {
+                    var other = results[i];
+
+                    var spirit = other.GetComponentInParent<Spirit>();
+                    // Debug.Log(spirit);
+                    if (spirit.Target == this && spirit.IsChasing) {
+                        // Debug.Log("Repossess");
+                        RePossess();
+                        spirit.RePool();
+                    }
+                }
+            }
         }
+
 
         //
         private void OnTriggerEnter2D(Collider2D other) {
@@ -126,23 +152,32 @@ namespace Hahaha {
         }
 
         private void OnTriggerStay2D(Collider2D other) {
-            if (other.gameObject.layer != _gasLayer) {
-                return;
+            if (other.gameObject.layer == _gasLayer) {
+                if (IsCured) {
+                    return;
+                }
+
+                var gas = other.gameObject.GetComponent<Gas>();
+
+                _life = Mathf.Max(-1, _life - damagePerSecond * gas.Damage * Time.deltaTime);
+
+                if (_life <= 0) {
+                    Cure();
+                }
+
+                _material.SetFloat(Saturation, 1 - _life / maxLife);
             }
 
-            if (IsCured) {
-                return;
+            if (other.gameObject.layer == LayerMask.NameToLayer("Spirit")) {
+                // var spirit = other.GetComponentInParent<Spirit>();
+                //
+                // Debug.Log(spirit);
+                // if (spirit.Target == this && spirit.IsChasing) {
+                //     Debug.Log("Repossess");
+                //     RePossess();
+                //     spirit.RePool();
+                // }
             }
-
-            var gas = other.gameObject.GetComponent<Gas>();
-
-            _life = Mathf.Max(-1, _life - damagePerSecond * gas.Damage * Time.deltaTime);
-
-            if (_life <= 0) {
-                gameObject.layer = LayerMask.NameToLayer("CuredEnemy");
-            }
-
-            _material.SetFloat(Saturation, 1 - _life / maxLife);
         }
 
         private void ChasePlayer(in Vector2 seeVector) {
@@ -163,6 +198,24 @@ namespace Hahaha {
                     _velocity.x = speed;
                 }
             }
+        }
+
+        private void Cure() {
+            gameObject.layer = LayerMask.NameToLayer("CuredEnemy");
+            LaughterGenerator.AddCured(this);
+            LaughterGenerator.SpawnSpirit(this);
+        }
+
+        public void RePossess() {
+            LaughterGenerator.RemoveCured(this);
+            gameObject.layer = LayerMask.NameToLayer("Enemy");
+            body.simulated = true;
+            collider.enabled = true;
+            renderer.sortingOrder = 0;
+            _material.SetFloat(Saturation, 0);
+            body.WakeUp();
+            SwitchDirection();
+            _life = maxLife;
         }
 
         private void SwitchDirection() {

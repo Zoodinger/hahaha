@@ -12,6 +12,12 @@ namespace Hahaha {
         [SerializeField, Get] private new SpriteRenderer renderer;
         [SerializeField, Get] private new Collider2D collider;
 
+        [SerializeField, GetInChildren(SyncMode.GetIfEmpty), IgnoreSelf, Name("Left")]
+        private Transform leftGun;
+
+        [SerializeField, GetInChildren(SyncMode.GetIfEmpty), IgnoreSelf, Name("Right")]
+        private Transform rightGun;
+
         [SerializeField] private float axisAcceleration = 0.1f;
         [SerializeField] private float speed = 8;
         [SerializeField] private float jumpForce = 8;
@@ -59,9 +65,18 @@ namespace Hahaha {
 
         public Collider2D Collider => collider;
 
+        public Vector2 GunPosition =>
+            _direction switch {
+                -1 => leftGun.transform.position,
+                1 => rightGun.transform.position,
+                _ => transform.position,
+            };
+
         private void Awake() {
             _actions = new InputActions();
             _actions.Enable();
+
+            _direction = 1;
 
             _actions.Player.Move.performed += ctx => { _inputAxis = new Vector2(ctx.ReadValue<Vector2>().x, 0); };
             _actions.Player.Move.canceled += _ => { _inputAxis = Vector2.zero; };
@@ -95,7 +110,7 @@ namespace Hahaha {
                 var elapsed = _shootScaledTimer.Elapsed;
                 if (elapsed >= shootRate) {
                     _shootScaledTimer.Reset(Mathf.Max(0, elapsed - shootRate));
-                    var gas = gasPool.Get(null, transform.position);
+                    var gas = gasPool.Get(null, GunPosition);
 
                     gas.Shoot(_direction);
                 }
@@ -156,6 +171,7 @@ namespace Hahaha {
             if (_isDamaged) {
                 return;
             }
+
             var point = other.collider.bounds.center;
             Hit(point);
             _isDamaged = true;
@@ -207,6 +223,7 @@ namespace Hahaha {
                 if (hitDirection == HitDirection.Left && _velocity.x < 0) {
                     _velocity.x = 0;
                 }
+
                 if (hitDirection == HitDirection.Right && _velocity.x > 0) {
                     _velocity.x = 0;
                 }
@@ -214,6 +231,7 @@ namespace Hahaha {
                 if (hitDirection == HitDirection.Up && _velocity.y > 0) {
                     _velocity.y = 0;
                 }
+
                 if (hitDirection == HitDirection.Down && _velocity.y < 0) {
                     _velocity.y = 0;
                 }
